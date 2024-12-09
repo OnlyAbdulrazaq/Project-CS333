@@ -1,0 +1,290 @@
+/* General reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #121212;
+    color: white;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .menu-icon,
+  .cart-icon,
+  .user-icon {
+    font-size: 24px;
+    cursor: pointer;
+  }
+  
+  .search-bar {
+    flex: 1;
+    margin: 0 10px;
+  }
+  
+  .search-bar input {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    outline: none;
+  }
+  
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+
+  }
+  
+  
+  .card {
+    background: #1e1e1e;
+    border-radius: 10px;
+    overflow: hidden;
+    text-align: center;
+  }
+  
+  .card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+  }
+
+.card:hover {
+  transform: scale(1.03);
+  background-color: blue;
+}
+  
+  .card-info {
+    padding: 10px;
+  }
+  
+  .card-info h3 {
+    font-size: 16px;
+    margin-bottom: 5px;
+  }
+  
+  .card-info p {
+    font-size: 14px;
+    color: #aaa;
+  }
+  
+  .card-info span {
+    display: inline-block;
+    margin-right: 10px;
+  }
+
+.simple-footer {
+  background-color: #1a1a1a; 
+  color: #ffffff; 
+  text-align: center;
+  padding: 20px;
+  margin-top: 30px; 
+}
+
+/* Website name styling */
+.website-name {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: white; 
+}
+
+.highlight {
+  color: #ff4d4d; /* Bright red color for "Scheduler" */
+}
+
+/* Links styling */
+.simple-footer a {
+  color: #ff4d4d; /* Bright red for email and phone links */
+  text-decoration: none;
+}
+
+.simple-footer a:hover {
+  text-decoration: underline; /* Underline on hover */
+}
+
+/* Copyright styling */
+.copyright {
+  font-size: 14px;
+  margin-top: 10px;
+  color: #aaaaaa; /* Subtle gray for copyright text */
+}
+
+/* Room Details Styling */
+/* General Layout */
+.room-details {
+  max-width: 900px;
+  margin: 40px auto;
+  background-color: #1c1c1c;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+  color: #ffffff;
+  font-family: 'Arial', sans-serif;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.room-details h1 {
+  background: linear-gradient(45deg, #ff4d4d, #ff7878);
+  color: #ffffff;
+  text-align: center;
+  padding: 20px;
+  font-size: 28px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-bottom: 2px solid #333333;
+}
+
+.room-details img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-bottom: 2px solid #333333;
+  transition: transform 0.3s ease;
+}
+
+.room-details img:hover {
+  transform: scale(1.05);
+}
+
+.room-details p {
+  padding: 20px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #cccccc;
+  border-bottom: 1px solid #333333;
+  word-break: break-word;
+}
+
+.room-details p:last-child {
+  border-bottom: none; /* Remove the border from the last paragraph */
+}
+
+.room-details h2 {
+  text-align: center;
+  margin: 30px 0;
+  color: #ff4d4d;
+  font-size: 24px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+/* Form Design */
+.room-details form {
+  padding: 20px;
+  background-color: #121212;
+  border-radius: 10px;
+  margin: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.6s ease-in-out;
+}
+
+.room-details form label {
+  display: block;
+  font-size: 14px;
+  color: #ffffff;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.room-details form input,
+.room-details form select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
+  background-color: #1e1e1e;
+  border: 1px solid #444444;
+  border-radius: 5px;
+  color: #ffffff;
+  font-size: 14px;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.room-details form input:focus,
+.room-details form select:focus {
+  border-color: #ff4d4d;
+  background-color: #222222;
+  outline: none;
+}
+
+.room-details form button {
+  background: linear-gradient(45deg, #ff4d4d, #e64545);
+  color: #ffffff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  text-transform: uppercase;
+  width: 100%;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.room-details form button:hover {
+  background: linear-gradient(45deg, #e64545, #ff4d4d);
+  transform: scale(1.02);
+}
+
+/* Success and Error Messages */
+.room-details p[style*="color: red;"],
+.room-details p[style*="color: green;"] {
+  font-weight: bold;
+  text-align: center;
+  padding: 15px;
+  border-radius: 10px;
+  margin: 20px auto;
+  width: 90%;
+}
+
+.room-details p[style*="color: red;"] {
+  background-color: #3d1a1a;
+  color: #ff4d4d;
+  border: 1px solid #ff4d4d;
+}
+
+.room-details p[style*="color: green;"] {
+  background-color: #1a3d1a;
+  color: #28a745;
+  border: 1px solid #28a745;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+      opacity: 0;
+      transform: translateY(-20px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+      opacity: 0;
+      transform: translateY(30px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}
