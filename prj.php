@@ -38,11 +38,11 @@ while ($row = $result->fetch_assoc()) {
     <main class="grid-container">
       <?php foreach ($rooms as $index => $room): ?>
         <div class="card" data-department="<?= htmlspecialchars($room['department']) ?>">
-        <a href="room_details.php?id=<?= $index + 1 ?>">  <!-- Change here: Room ID is now index + 1 -->
-          <img src="<?= htmlspecialchars($room['image_url']) ?>" alt="Room <?= $index + 1 ?>">  <!-- Display Room number -->
+        <a href="room_details.php?id=<?= $room['id'] ?>">  <!-- Use room ID -->
+          <img src="<?= htmlspecialchars($room['image_url']) ?>" alt="Room <?= $room['id'] ?>">  
         </a>
           <div class="card-info">
-            <h3>Room <?= $index + 1 ?></h3>  <!-- Display Room number -->
+            <h3>Room <?= htmlspecialchars($room['id']) ?></h3>
             <p>
               📍 <?= htmlspecialchars($room['department']) ?> Department | 
               👥 <?= htmlspecialchars($room['capacity']) ?> People | 
@@ -56,7 +56,6 @@ while ($row = $result->fetch_assoc()) {
       <?php 
         $departments = ['CS', 'NE', 'IS'];
         for ($i = 1; $i <= 19; $i++):
-          // Get random department for fallback cards
           $department = $departments[array_rand($departments)];
       ?>
         <div class="card" data-department="<?= $department ?>">
@@ -75,14 +74,7 @@ while ($row = $result->fetch_assoc()) {
       <?php endfor; ?>
     </main>
   </div>
-  <footer class="simple-footer">
-    <div class="footer-content">
-      <h2 class="website-name">Room<span class="highlight">Scheduler</span></h2>
-      <p>Email: <a href="mailto:support@roomscheduler.com">Support@RoomScheduler.com</a></p>
-      <p>Phone: <a href="tel:+9733323">+973 39733323</a></p>
-      <p class="copyright">©2024 RoomScheduler. All Rights Reserved.</p>
-    </div>
-  </footer>
+  <?php include 'footer.php'; ?> 
   <script src="prj.js"></script>
 </body>
 </html>
