@@ -1,129 +1,121 @@
 <?php
-include 'db.php';
 session_start();
+include 'db.php';
 
-// Check if the user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
-}
-
-// Validate the room ID
 if (!isset($_GET['id'])) {
-    echo "Invalid Room ID.";
+    header("Location: prj.php");
     exit();
 }
 
 $room_id = $_GET['id'];
 
-// Allow numeric or specific string formats (e.g., fallback_1)
-if (!preg_match('/^(\d+|fallback_\d+)$/', $room_id)) {
-    echo "Invalid Room ID format.";
+// Fetch room details
+$stmt = $conn->prepare("SELECT * FROM rooms WHERE id = ?");
+$stmt->bind_param("i", $room_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$room = $result->fetch_assoc();
+
+if (!$room) {
+    header("Location: prj.php");
     exit();
 }
 
-if (str_starts_with($room_id, 'fallback_')) {
-    // Handle fallback room details
-    $fallback_number = explode('_', $room_id)[1];
-    $room = [
-        'department' => 'Fallback Department',
-        'capacity' => rand(10, 300),
-        'area' => rand(50, 300) . ' m²',
-        'equipment' => 'Basic Equipment',
-        'image_url' => "rooms_pics/room{$fallback_number}.jpg",
-    ];
-} else {
-    // Fetch room details from the database
-    $stmt = $conn->prepare("SELECT * FROM rooms WHERE id = ?");
-    $stmt->bind_param("i", $room_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $room = $result->fetch_assoc();
-
-    if (!$room) {
-        echo "Room not found.";
-        exit();
-    }
-}
-
 // Fetch available timeslots
-$timeslots_result = $conn->query("SELECT * FROM timeslots");
-$timeslots = [];
-if ($timeslots_result) {
-    while ($row = $timeslots_result->fetch_assoc()) {
-        $timeslots[] = $row;
-    }
+$timeslots = $conn->query("SELECT * FROM timeslots ORDER BY start_time")->fetch_all(MYSQLI_ASSOC);
+
+// Fetch existing bookings for this room
+$stmt = $conn->prepare("SELECT date, timeslot_id FROM bookings WHERE room_id = ? AND date >= CURDATE()");
+$stmt->bind_param("i", $room_id);
+$stmt->execute();
+$bookings_result = $stmt->get_result();
+$bookings = [];
+while ($booking = $bookings_result->fetch_assoc()) {
+    $bookings[$booking['date']][] = $booking['timeslot_id'];
 }
 
-// Handle booking submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $timeslot_id = $_POST['timeslot_id'];
-    $date = $_POST['date'];
-    $user_id = $_SESSION['user_id'];
-
-    // Check for empty fields
-    if (empty($timeslot_id) || empty($date)) {
-        $error = "Please select a timeslot and a date.";
-    } else {
-        // Check for conflicts
-        $conflict = $conn->prepare("SELECT * FROM bookings WHERE room_id = ? AND timeslot_id = ? AND date = ?");
-        $conflict->bind_param("iis", $room_id, $timeslot_id, $date);
-        $conflict->execute();
-        $conflict_result = $conflict->get_result();
-
-        if ($conflict_result->num_rows > 0) {
-            $error = "This timeslot is already booked.";
-        } else {
-            // Insert booking
-            $stmt = $conn->prepare("INSERT INTO bookings (user_id, room_id, timeslot_id, date) VALUES (?, ?, ?, ?)");
-            $stmt->bind_param("iiis", $user_id, $room_id, $timeslot_id, $date);
-            $stmt->execute();
-            $success = "Booking successful!";
-        }
-    }
-}
+// Get the current date
+$currentDate = date('Y-m-d');
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Room Details</title>
+    <title>Room Details - <?= htmlspecialchars($room['name']) ?></title>
     <link rel="stylesheet" href="prj.css">
 </head>
 <body>
+    <div class="container">
+        <header>
+            <h1><?= htmlspecialchars($room['name']) ?></h1>
+            <a href="prj.php" class="back-button">Back to Rooms</a>
+        </header>
 
-    <main class="room-details">
-        <h1>Room <?= htmlspecialchars($room_id) ?></h1>
-        <p><strong>Department:</strong> <?= htmlspecialchars($room['department']) ?></p>
-        <p><strong>Capacity:</strong> <?= htmlspecialchars($room['capacity']) ?> people</p>
-        <p><strong>Area:</strong> <?= htmlspecialchars($room['area']) ?></p>
-        <p><strong>Equipment:</strong> <?= htmlspecialchars($room['equipment']) ?></p>
-        <img src="<?= htmlspecialchars($room['image_url']) ?>" alt="Room Image">
+        <div class="room-details">
+    <?php if (!empty($room['image_url'])): ?>
+        <img src="rooms_pics/room<?= htmlspecialchars($room['image_url']) ?>" 
+             alt="<?= htmlspecialchars($room['name']) ?>" 
+             onerror="this.onerror=null; this.src='rooms_pics/room'; console.log('Error loading image: ' + this.src);">
+        <p>Image URL: rooms_pics/<?= htmlspecialchars($room['image_url']) ?></p>
+    <?php else: ?>
+        <img src="rooms_pics/room" alt="No image available">
+        <p>No image URL provided</p>
+    <?php endif; ?>
+            <p><strong>Department:</strong> <?= htmlspecialchars($room['department']) ?></p>
+            <p><strong>Capacity:</strong> <?= htmlspecialchars($room['capacity']) ?> People</p>
+            <p><strong>Size:</strong> <?= htmlspecialchars($room['size']) ?></p>
+            <p><strong>Equipment:</strong> <?= htmlspecialchars($room['equipment']) ?></p>
+        </div>
 
-        <h2>Book This Room</h2>
-        <?php if (isset($error)): ?>
-            <p style="color: red;"><?= htmlspecialchars($error) ?></p>
-        <?php endif; ?>
-        <?php if (isset($success)): ?>
-            <p style="color: green;"><?= htmlspecialchars($success) ?></p>
-        <?php endif; ?>
-        <form method="POST">
-            <label for="date">Date:</label>
-            <input type="date" name="date" required>
-            
-            <label for="timeslot">Timeslot:</label>
-            <select name="timeslot_id" required>
-                <?php foreach ($timeslots as $timeslot): ?>
-                    <option value="<?= htmlspecialchars($timeslot['id']) ?>">
-                        <?= htmlspecialchars($timeslot['start_time'] . ' - ' . $timeslot['end_time']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-            <button type="submit">Book Now</button>
-        </form>
-    </main>
+        <section class="booking-section">
+            <h2>Book this room</h2>
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <form action="booking.php" method="post" id="bookingForm">
+                    <input type="hidden" name="room_id" value="<?= $room_id ?>">
+                    <label for="date">Date:</label>
+                    <input type="date" id="date" name="date" required min="<?= $currentDate ?>">
+                    <label for="timeslot">Time Slot:</label>
+                    <select id="timeslot" name="timeslot_id" required>
+                        <option value="">Select a time slot</option>
+                        <?php foreach ($timeslots as $timeslot): ?>
+                            <option value="<?= $timeslot['id'] ?>"><?= htmlspecialchars($timeslot['start_time']) ?> - <?= htmlspecialchars($timeslot['end_time']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <button type="submit">Book Now</button>
+                </form>
+            <?php else: ?>
+                <p>Please <a href="login.php">log in</a> to book this room.</p>
+            <?php endif; ?>
+        </section>
+    </div>
 
-    <?php include 'footer.php'; ?>
+    <script>
+        const bookings = <?= json_encode($bookings) ?>;
+
+        // Update available timeslots based on selected date
+        document.getElementById('date').addEventListener('change', function() {
+            const selectedDate = this.value;
+            const timeslotSelect = document.getElementById('timeslot');
+            const bookedTimeslots = bookings[selectedDate] || [];
+
+            Array.from(timeslotSelect.options).forEach(option => {
+                if (option.value !== "") { 
+                    option.disabled = bookedTimeslots.includes(option.value);
+                }
+            });
+        });
+
+        // Form validation
+        document.getElementById('bookingForm').addEventListener('submit', function(e) {
+            const date = document.getElementById('date').value;
+            const timeslot = document.getElementById('timeslot').value;
+            if (!date || !timeslot) {
+                e.preventDefault();
+                alert('Please select both a date and a time slot.');
+            }
+        });
+    </script>
 </body>
 </html>

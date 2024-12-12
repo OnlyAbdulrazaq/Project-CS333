@@ -1,4 +1,5 @@
 <?php
+session_start();
 include 'db.php'; 
 
 // Fetch all rooms from the database
@@ -31,50 +32,36 @@ while ($row = $result->fetch_assoc()) {
         <input type="text" id="searchInput" placeholder="Search By Department..." onkeyup="filterCards()" />
       </div>
       <div class="icons">
-        <div class="cart-icon">🛒</div>
-        <div class="user-icon">👤</div>
+        <?php if (isset($_SESSION['user_id'])): ?>
+          <a href="mybookings.php" class="bookings-icon">📅</a>
+          <a href="logout.php" class="logout-icon">🚪</a>
+        <?php else: ?>
+          <a href="login.php" class="login-icon">🔑</a>
+        <?php endif; ?>
       </div>
     </header>
     <main class="grid-container">
-      <?php foreach ($rooms as $index => $room): ?>
-        <div class="card" data-department="<?= htmlspecialchars($room['department']) ?>">
-        <a href="room_details.php?id=<?= $room['id'] ?>">  <!-- Use room ID -->
-          <img src="<?= htmlspecialchars($room['image_url']) ?>" alt="Room <?= $room['id'] ?>">  
-        </a>
-          <div class="card-info">
-            <h3>Room <?= htmlspecialchars($room['id']) ?></h3>
-            <p>
-              📍 <?= htmlspecialchars($room['department']) ?> Department | 
-              👥 <?= htmlspecialchars($room['capacity']) ?> People | 
-              <?= htmlspecialchars($room['size']) ?>
-            </p>
-            <p>Equipment: <?= htmlspecialchars($room['equipment']) ?></p>
-          </div>
-        </div>
-      <?php endforeach; ?>
-      
-      <?php 
-        $departments = ['CS', 'NE', 'IS'];
-        for ($i = 1; $i <= 19; $i++):
-          $department = $departments[array_rand($departments)];
-      ?>
-        <div class="card" data-department="<?= $department ?>">
-          <a href="room_details.php?id=fallback_<?= $i ?>">
-            <img src="rooms_pics/room<?= $i ?>.jpg" alt="Fallback Room <?= $i ?>">
-          </a>
-          <div class="card-info">
-            <h3>Room <?= $i ?></h3>
-            <p>
-              📍 <?= $department ?> Department | 
-              👥 <?= rand(10, 300) ?> People | 
-              <?= rand(50, 300) ?> m²
-            </p>
-          </div>
-        </div>
-      <?php endfor; ?>
+  <?php foreach ($rooms as $room): ?>
+    <div class="card" data-department="<?= htmlspecialchars($room['department']) ?>">
+      <a href="room_details.php?id=<?= $room['id'] ?>">
+        <img src="rooms_pics/room<?= htmlspecialchars($room['image_url']) ?>" 
+             alt="<?= htmlspecialchars($room['name']) ?>" 
+             onerror="this.onerror=null; this.src='rooms_pics/default_room.jpg';">
+      </a>
+      <div class="card-info">
+        <h3><?= htmlspecialchars($room['name']) ?></h3>
+        <p>
+          📍 <?= htmlspecialchars($room['department']) ?> Department | 
+          👥 <?= htmlspecialchars($room['capacity']) ?> People | 
+          <?= htmlspecialchars($room['size']) ?>
+        </p>
+        <p>Equipment: <?= htmlspecialchars($room['equipment']) ?></p>
+      </div>
+    </div>
+  <?php endforeach; ?>
     </main>
   </div>
-  <?php include 'footer.php'; ?> 
+  <?php include 'footer.php'; ?>
   <script src="prj.js"></script>
 </body>
 </html>

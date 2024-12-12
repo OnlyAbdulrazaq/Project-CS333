@@ -1,16 +1,17 @@
 function filterCards() {
-    const input = document.getElementById('searchInput').value.toUpperCase(); // Get the user input and convert to uppercase
-    const cards = document.querySelectorAll('.card'); // Select all cards
-  
-    cards.forEach((card) => {
-      const department = card.getAttribute('data-department').toUpperCase(); // Get department tag
-      if (department.includes(input) || input === "") {
-        // Show card if it matches input or if input is empty
-        card.style.display = "";
+  const searchInput = document.getElementById('searchInput');
+  const filter = searchInput.value.toUpperCase();
+  const cards = document.getElementsByClassName('card');
+
+  for (let i = 0; i < cards.length; i++) {
+      const department = cards[i].getAttribute('data-department').toUpperCase();
+      if (department.indexOf(filter) > -1) {
+          cards[i].style.display = "";
       } else {
-        // Hide card if it doesn't match
-        card.style.display = "none";
+          cards[i].style.display = "none";
       }
-    });
   }
-  
+}
+
+// Add event listener for the search input
+document.getElementById('searchInput').addEventListener('keyup', filterCards);

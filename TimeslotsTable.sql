@@ -6,3 +6,10 @@ CREATE TABLE timeslots (
     is_available BOOLEAN DEFAULT TRUE,
     FOREIGN KEY (room_id) REFERENCES rooms(id)
 );
+INSERT INTO timeslots (start_time, end_time) VALUES 
+('09:00:00', '10:00:00'),
+('10:00:00', '11:00:00'),
+('11:00:00', '12:00:00'),
+('13:00:00', '14:00:00'),
+('15:00:00', '16:00:00'),
+('16:30:00', '20:00:00');

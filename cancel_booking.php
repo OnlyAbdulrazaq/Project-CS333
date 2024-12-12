@@ -1,28 +1,43 @@
 <?php
-include 'db_connection.php';
+session_start();
+include 'db.php';
 
-$booking_id = $_GET['id'];
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
 
-// Retrieve timeslot ID
-$timeslot_query = $conn->prepare("
-    SELECT timeslot_id FROM bookings WHERE id = ?
-");
-$timeslot_query->execute([$booking_id]);
-$timeslot_id = $timeslot_query->fetchColumn();
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['booking_id'])) {
+    $booking_id = $_POST['booking_id'];
+    $user_id = $_SESSION['user_id'];
 
-// Delete booking
-$delete_booking = $conn->prepare("
-    DELETE FROM bookings WHERE id = ?
-");
-$delete_booking->execute([$booking_id]);
-
-// Mark timeslot as available
-$update_timeslot = $conn->prepare("
-    UPDATE timeslots SET is_available = TRUE WHERE id = ?
-");
-$update_timeslot->execute([$timeslot_id]);
-
-echo "Booking canceled.";
-header("Location: profile.php");
-exit();
+    $stmt = $conn->prepare("DELETE FROM bookings WHERE id = ? AND user_id = ?");
+    $stmt->bind_param("ii", $booking_id, $user_id);
+    
+    if ($stmt->execute()) {
+        $success = "Booking cancelled successfully.";
+    } else {
+        $error = "Failed to cancel the booking.";
+    }
+}
 ?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cancel Booking</title>
+    <link rel="stylesheet" href="prj.css">
+</head>
+<body>
+    <div class="container">
+        <?php if (isset($error)): ?>
+            <p class="error"><?= $error ?></p>
+        <?php elseif (isset($success)): ?>
+            <p class="success"><?= $success ?></p>
+        <?php endif; ?>
+        <a href="my_bookings.php">Back to My Bookings</a>
+    </div>
+</body>
+</html>
